@@ -2,18 +2,12 @@
 import os, re
 
 path = os.getcwd()
-fileList = []
-partialList = []
+base = os.path.dirname(os.path.abspath(__file__))
 ext = '.styl'
 
 pattern = re.compile('/\*([^/]|[^*]/)*\*/', re.DOTALL)
 pattern2 = re.compile('//.*')
 
-# 訪問リスト作成
-for root, dirs, files in os.walk(path):
-    for file in files:
-        if ext in file:
-            fileList.append([os.path.join(root,file), root, file])
 
 # ファイル内からimportを探す
 def getImport(files):
@@ -22,7 +16,6 @@ def getImport(files):
     name = files[2]
     importList = []
     i = 0
-
 
     # ディレクトリ移動
     os.chdir(root)
@@ -52,28 +45,43 @@ def getImport(files):
             filepath = pathname[:boundary+1]
             filename = pathname[boundary+1:]
 
-        importList.append(os.path.abspath(filepath) + '/' + filename + ext)
+        importList.append(os.path.abspath(filepath).replace(base, '') + '/' + filename + ext)
         i = posE
-    return [id, importList]
+    return [id.replace(base, ''), importList]
 
-for list in fileList:
-    partialList.append(getImport(list))
+# 訪問リスト作成
+def getFileList():
+    fileList = []
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            if ext in file:
+                fileList.append([os.path.join(root,file), root, file])
+    return fileList
 
-str = ''
-for lists in partialList:
-    str += '\r\n'
-    str += '■ファイルの名前：' + lists[0] + '\r\n\r\n'
-    for li in lists[1]:
-        str += li + '\r\n'
-    str += '\r\n'
+# report作成
+def makeReport(partialList):
+    str = ''
+    for lists in partialList:
+        str += '\r\n'
+        str += '■ファイルの名前：' + lists[0] + '\r\n\r\n'
+        for li in lists[1]:
+            str += li + '\r\n'
+        str += '\r\n'
 
-os.chdir(path)
+    os.chdir(path)
 
-report = open('report.txt', 'w')
-report.write(str)
-report.close()
+    report = open('report.txt', 'w')
+    report.write(str)
+    report.close()
 
+def init():
+    partialList = []
+    fileList = getFileList()
+    for list in fileList:
+        partialList.append(getImport(list))
+    makeReport(partialList)
 
+init()
 
 
 
