@@ -1,5 +1,5 @@
 # coding: utf-8
-import os, re, json
+import os, re, json, sys
 
 path = os.getcwd()
 base = os.path.dirname(os.path.abspath(__file__))
@@ -64,11 +64,11 @@ def getImport(files, dict):
 def getFileList():
     fileList = []
     for root, dirs, files in os.walk(path):
+        files = [file for file in files if file.endswith( ('.styl', '.scss', '.sass', '.less') )]
         for file in files:
-            for ext in extList:
-                if ext in file:
-                    fileList.append([os.path.join(root,file), root, file, ext])
-                    break
+            print file
+            fileList.append([os.path.join(root,file), root, file, file])
+            break
     return fileList
 
 # report作成
@@ -101,8 +101,9 @@ def init():
     makeReport(partialDict)
 
 init()
-
-
+# print u"調べたいディレクトリをスペース区切りで入力して下さい"
+# test = raw_input().split()
+# print test
 
 
 
