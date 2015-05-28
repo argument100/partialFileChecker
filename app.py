@@ -3,10 +3,10 @@ import os, re, json, sys
 
 path = os.getcwd()
 base = os.path.dirname(os.path.abspath(__file__))
-extList = ['.styl', '.scss', '.sass', '.less']
 
 pattern = re.compile('/\*([^/]|[^*]/)*\*/', re.DOTALL)
 pattern2 = re.compile('//.*')
+pattern3 = re.compile('(\..+)')
 
 
 # ファイル内からimportを探す
@@ -63,11 +63,14 @@ def getImport(files, dict):
 # 訪問リスト作成
 def getFileList():
     fileList = []
-    for root, dirs, files in os.walk(path):
+    for root, dirs, files in os.walk(path, topdown=True):
+        # print dirs
+        # if not 'cmn' in dirs:
+        #     break
         files = [file for file in files if file.endswith( ('.styl', '.scss', '.sass', '.less') )]
         for file in files:
-            print file
-            fileList.append([os.path.join(root,file), root, file, file])
+            ext = pattern3.search(file).group(0)
+            fileList.append([os.path.join(root,file), root, file, ext])
             break
     return fileList
 
